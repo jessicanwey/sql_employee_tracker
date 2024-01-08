@@ -22,6 +22,7 @@ const db = mysql.createConnection(
   console.log(`Connected to the staff_db database.`)
 );
 
+//This prompts the user to find out what action they want to take on the staff database
 function promptUser() {
   inquirer
     .prompt([
@@ -73,8 +74,10 @@ function promptUser() {
     });
 }
 
+//Initializes the prompts
 promptUser();
 
+//This function gets all of the departments
 function viewAllDepartments() {
   db.query(
     "SELECT id AS ID, name AS Department FROM departments;",
@@ -88,6 +91,7 @@ function viewAllDepartments() {
   );
 }
 
+//This function gets all of the roles
 function viewAllRoles() {
   const viewRolesSQL = `SELECT roles.id as ID, 
      roles.title as Title, 
@@ -104,6 +108,7 @@ function viewAllRoles() {
   });
 }
 
+//This function gets all the employees
 function viewAllEmployees() {
   db.query(
     `SELECT employees.id AS ID, 
@@ -126,6 +131,7 @@ function viewAllEmployees() {
   );
 }
 
+//This function allows the user to enter a new department and adds it to the database
 function addDepartment() {
   inquirer
     .prompt({
@@ -146,9 +152,12 @@ function addDepartment() {
     });
 }
 
+//This function allows the user to input a new role, input a salary for that role and select a department to assign the role too
 function addRole() {
   const deptChoices = [];
 
+  //This gets all of the departments from the database and populates and array with the values and IDs 
+  //This array is later used for the choices in the list that is prompted to the user
   db.query("SELECT * FROM departments;", function (err, results) {
     if(err) throw err;
     results.forEach((dept) => {
@@ -192,10 +201,14 @@ function addRole() {
   });
 }
 
+//This function lets the user add a new employee. They can input a first name and last name. 
+//They are presented with a list of roles and managers as well to assign to the new employee.
 function addEmployee() {
   const roleChoices = [];
   const managerChoices = [{name: 'None', value: 0}];
 
+  //This gets all of the roles from the database and populates and array with the values and IDs 
+  //This array is later used for the choices in the list that is prompted to the user
   db.query("SELECT * FROM roles;", function (err, results) {
     if(err) throw err;
     results.forEach(({ title, id }) => {
@@ -206,6 +219,8 @@ function addEmployee() {
       roleChoices.push(roleChoice);
     });
 
+    //This gets all of the employees from the database and populates and array with the values and IDs 
+    //This array is later used for the choices in the list of manager options that is prompted to the user
     db.query("SELECT * FROM employees;", function (err, results) {
       if(err) throw err;
       results.forEach(({ first_name, last_name, id }) => {
@@ -262,10 +277,14 @@ function addEmployee() {
   });
 }
 
+//This function lets the user update an employee role. They can choose an employee from a list of employees. 
+//They are then presented with a list of roles to select a new role for that employee.
 function updateEmployee() {
   const roleChoices = [];
   const employeeChoices = [];
 
+  //This gets all of the employees from the database and populates and array with the values and IDs 
+  //This array is later used for the choices in the list of employees that is prompted to the user to update
   db.query("SELECT * FROM employees;", function (err, results) {
     if(err) throw err;
     results.forEach(({ first_name, last_name, id }) => {
@@ -276,6 +295,8 @@ function updateEmployee() {
       employeeChoices.push(employeeChoice);
     });
 
+    //This gets all of the roles from the database and populates and array with the values and IDs 
+    //This array is later used for the choices in the list that is prompted to the user
     db.query("SELECT * FROM roles;", function (err, results) {
       if(err) throw err;
       results.forEach(({ title, id }) => {
