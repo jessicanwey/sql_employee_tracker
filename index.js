@@ -5,8 +5,6 @@ const inquirer = require("inquirer");
 const PORT = process.env.PORT || 3001;
 const app = express();
 
-//let deptID;
-
 // Express middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -81,6 +79,7 @@ function viewAllDepartments() {
   db.query(
     "SELECT id AS ID, name AS Department FROM departments;",
     function (err, results) {
+      if(err) throw err;
       console.log("\n");
       console.log(results);
       console.table(results);
@@ -98,6 +97,7 @@ function viewAllRoles() {
      JOIN departments 
      ON roles.department_id = departments.id;`;
   db.query(viewRolesSQL, function (err, results) {
+    if(err) throw err;
     console.log("\n");
     console.table(results);
     promptUser();
@@ -118,6 +118,7 @@ function viewAllEmployees() {
      JOIN departments 
      ON roles.department_id = departments.id;`,
     function (err, results) {
+      if(err) throw err;
       console.log("\n");
       console.table(results);
       promptUser();
@@ -137,7 +138,8 @@ function addDepartment() {
         "INSERT INTO departments (name) VALUES (?);",
         [response.deptName],
         function (err, results) {
-          viewAllDepartments();
+          if(err) throw err;
+          console.log("Added " + response.deptName + " to the database");
           promptUser();
         }
       );
@@ -148,6 +150,7 @@ function addRole() {
   const deptChoices = [];
 
   db.query("SELECT * FROM departments;", function (err, results) {
+    if(err) throw err;
     results.forEach((dept) => {
       let deptChoice = {
         name: dept.name,
@@ -181,7 +184,7 @@ function addRole() {
           `INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?);`,
           [response.roleTitle, response.salary, response.department],
           function (err, results) {
-            viewAllRoles();
+            console.log("Added " + response.roleTitle + " to the database");
             promptUser();
           }
         );
@@ -191,9 +194,10 @@ function addRole() {
 
 function addEmployee() {
   const roleChoices = [];
-  const managerChoices = [];
+  const managerChoices = [{name: 'None', value: 0}];
 
   db.query("SELECT * FROM roles;", function (err, results) {
+    if(err) throw err;
     results.forEach(({ title, id }) => {
       let roleChoice = {
         name: title,
@@ -203,6 +207,7 @@ function addEmployee() {
     });
 
     db.query("SELECT * FROM employees;", function (err, results) {
+      if(err) throw err;
       results.forEach(({ first_name, last_name, id }) => {
         let managerChoice = {
           name: first_name + " " + last_name,
@@ -247,7 +252,8 @@ function addEmployee() {
               response.managerID,
             ],
             function (err, results) {
-              viewAllEmployees();
+              if(err) throw err;
+              console.log("Added " + response.empFirstName + " " + response.empLastName + " to the database");
               promptUser();
             }
           );
@@ -261,6 +267,7 @@ function updateEmployee() {
   const employeeChoices = [];
 
   db.query("SELECT * FROM employees;", function (err, results) {
+    if(err) throw err;
     results.forEach(({ first_name, last_name, id }) => {
       let employeeChoice = {
         name: first_name + " " + last_name,
@@ -270,6 +277,7 @@ function updateEmployee() {
     });
 
     db.query("SELECT * FROM roles;", function (err, results) {
+      if(err) throw err;
       results.forEach(({ title, id }) => {
         let roleChoice = {
           name: title,
@@ -298,7 +306,8 @@ function updateEmployee() {
             "UPDATE employees SET role_id = ? WHERE id = ?;",
             [response.title, response.name],
             function (err, results) {
-              viewAllEmployees();
+              if(err) throw err;
+              console.log("Updated " + response.empFirstName + " " + response.empLastName + " in the database");
               promptUser();
             }
           );
