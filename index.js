@@ -65,7 +65,9 @@ function promptUser() {
         case "Add an Employee":
           addEmployee();
           break;
-        //updateEmployee();
+        case "Update an Employee Role":
+          updateEmployee();
+          break;
         case "Quit":
           quitTracker();
           break;
@@ -192,7 +194,7 @@ function addEmployee() {
   const managerChoices = [];
 
   db.query("SELECT * FROM roles;", function (err, results) {
-    results.forEach(({title, id}) => {
+    results.forEach(({ title, id }) => {
       let roleChoice = {
         name: title,
         value: id,
@@ -201,7 +203,7 @@ function addEmployee() {
     });
 
     db.query("SELECT * FROM employees;", function (err, results) {
-      results.forEach(({first_name, last_name, id}) => {
+      results.forEach(({ first_name, last_name, id }) => {
         let managerChoice = {
           name: first_name + " " + last_name,
           value: id,
@@ -229,7 +231,8 @@ function addEmployee() {
           },
           {
             type: "list",
-            message: "Who is the manager for this employee? Choose 'None' if there is no manager.",
+            message:
+              "Who is the manager for this employee? Choose 'None' if there is no manager.",
             name: "managerID",
             choices: managerChoices,
           },
@@ -254,34 +257,54 @@ function addEmployee() {
 }
 
 function updateEmployee() {
-  inquirer
-    .prompt([
-      {
-        type: "input",
-        message: "What is the title of the new role?",
-        name: "roleTitle",
-      },
-      {
-        type: "input",
-        message: "What is the salary for this role?",
-        name: "salary",
-      },
-      {
-        type: "input",
-        message: "What is the department ID for this role?",
-        name: "deptID",
-      },
-    ])
-    .then(function (response) {
-      db.query(
-        "INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?);",
-        [response.roleTitle, response.salary, response.deptID],
-        function (err, results) {
-          viewAllRoles();
-          promptUser();
-        }
-      );
+  const roleChoices = [];
+  const employeeChoices = [];
+
+  db.query("SELECT * FROM employees;", function (err, results) {
+    results.forEach(({ first_name, last_name, id }) => {
+      let employeeChoice = {
+        name: first_name + " " + last_name,
+        value: id,
+      };
+      employeeChoices.push(employeeChoice);
     });
+
+    db.query("SELECT * FROM roles;", function (err, results) {
+      results.forEach(({ title, id }) => {
+        let roleChoice = {
+          name: title,
+          value: id,
+        };
+        roleChoices.push(roleChoice);
+      });
+
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            message: "Which employee's role do you want to update?",
+            name: "name",
+            choices: employeeChoices,
+          },
+          {
+            type: "list",
+            message: "Which role do you want to assign the selected employee?",
+            name: "title",
+            choices: roleChoices,
+          },
+        ])
+        .then(function (response) {
+          db.query(
+            "UPDATE employees SET role_id = ? WHERE id = ?;",
+            [response.title, response.name],
+            function (err, results) {
+              viewAllEmployees();
+              promptUser();
+            }
+          );
+        });
+    });
+  });
 }
 
 function quitTracker() {
