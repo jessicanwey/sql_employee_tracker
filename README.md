@@ -21,7 +21,7 @@
 
   ## Usage
   Use your terminal and use node to open index.js and follow prompts for viewing, adding and editing employees, roles and departments.
-  Video demo:
+  Video demo: https://watch.screencastify.com/v/Sb9SG8EVJs3P6H33o0Dx
 
   ## License
   None  
