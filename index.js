@@ -43,7 +43,6 @@ function promptUser() {
       },
     ])
     .then((response) => {
-      console.log(response.action);
 
       switch (response.action) {
         case "View All Departments":
@@ -84,7 +83,6 @@ function viewAllDepartments() {
     function (err, results) {
       if(err) throw err;
       console.log("\n");
-      console.log(results);
       console.table(results);
       promptUser();
     }
@@ -188,7 +186,6 @@ function addRole() {
         },
       ])
       .then(function (response) {
-        console.log("who knows " + response.department);
         db.query(
           `INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?);`,
           [response.roleTitle, response.salary, response.department],
@@ -328,7 +325,6 @@ function updateEmployee() {
             [response.title, response.name],
             function (err, results) {
               if(err) throw err;
-              console.log("Updated " + response.empFirstName + " " + response.empLastName + " in the database");
               promptUser();
             }
           );
